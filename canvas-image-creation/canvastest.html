@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Untitled Document</title>
+<style>
+div.container {
+	position:absolute;
+	top:200px;
+	left:300px;
+	width:300px;
+	height:350px;
+	border:1px solid #000;
+}
+
+</style>
+
+<script type="text/javascript" src="scripts/jqueryui/js/jquery-1.5.1.min.js"></script>
+<script type="text/javascript" src="scripts/jqueryui/js/jquery-ui-1.8.11.custom.min.js"></script>
+<script type="text/javascript" src="scripts/_UTILITIES.js"></script>
+<script type="text/javascript">
+var DEBUG = 1;
+var HEIGHT = 350;
+var WIDTH  = 300;
+var G_vmlCanvasManager;
+
+function init_image() {
+	var curnum = $("div.container canvas").length;
+	var nextnum = curnum + 1;
+	
+	var img = new Image();
+	img.width  = 80;
+	img.height = 27;
+	img.src = 'images/zippo/zippo_logo1.png';
+	
+	//$("div.container").append('<canvas id="c'+nextnum+'" width="'+img.width+'" height="'+img.height+'"></canvas>');
+	
+	var canvas = document.createElement('canvas');
+	$(canvas).attr({
+		'width':img.width,
+		'height':img.height,
+		'id':"c"+nextnum
+	}).appendTo($("div.container"));
+	if($.browser.msie) canvas = G_vmlCanvasManager.initElement(canvas);
+	
+	
+	//var canvas = document.getElementById("c"+nextnum);
+	var context = canvas.getContext("2d");
+	
+	img.onload = function() {
+  		context.drawImage(img, 0, 0, 80, 27);
+	};
+	
+	$("#c"+nextnum).draggable({
+		snap:true,
+		grid: [1,1],
+		containment: 'parent'
+	});
+}
+
+
+function writeText() {
+	var curnum = $("div.container canvas").length;
+	var nextnum = curnum + 1;
+
+	//var myText = $("#addText").val();
+	var myText = document.getElementById("addText").value;
+	$("body").append('<p id="text_temp" style="position:absolute;left:-10000em;">'+myText+'</p>');
+	var text_width = $("#text_temp").width();
+	var text_height = $("#text_temp").height();
+	
+	//$("div.container").append('<canvas id="c'+nextnum+'" width="'+text_width+'" height="'+text_height+'"></canvas>');
+	
+	var canvas = document.createElement('canvas');
+	$(canvas).attr({
+		'width':text_width,
+		'height':text_height,
+		'id':"c"+nextnum
+	}).appendTo($("div.container"));
+	if($.browser.msie) canvas = G_vmlCanvasManager.initElement(canvas);
+
+	
+	//var canvas = document.getElementById("c"+nextnum);
+	var context = canvas.getContext("2d");
+	context.fillStyle = "black";
+	context.font = "bold 12px sans-serif";
+	context.textAlign = "left";
+	context.textBaseline = "top";
+	context.fillText(myText, 1, 1);
+	
+	$("#c"+nextnum).draggable({
+		snap:true,
+		grid: [1,1],
+		containment: 'parent'
+	});
+
+}
+
+
+
+function getPos() {
+	$.each($("div.container canvas"), function() {
+		var o = $(this);
+		var p = o.position();
+		log("id: " + o.attr('id') + " -- top: " + p.top + " -- left: " + p.left);
+	});
+}
+
+
+function flatten() {
+	$("body").append('<div class="flattened_container"></div>');
+	
+	$("div.flattened_container").css({
+		'position': 'absolute',
+		'top': '200px',
+		'left': '650px',
+		'z-index': '10'
+	});	
+	
+	var canvas = document.createElement('canvas');
+	$(canvas).attr({
+		'width':WIDTH,
+		'height':HEIGHT,
+		'id':"flattened"
+	}).appendTo($("div.flattened_container"));
+	if($.browser.msie) canvas = G_vmlCanvasManager.initElement(canvas);
+	
+	
+	
+	//var flattened_canvas = document.getElementById("flattened");
+	var context = canvas.getContext("2d");
+
+	var count = 0
+	$.each($("div.container canvas"), function() {
+		count++;
+		var o = $(this);
+		var p = o.position();
+		var obj = document.getElementById("c"+count);
+		//log("id: " + o.attr('id') + " -- top: " + p.top + " -- left: " + p.left);
+		context.drawImage(obj, p.left, p.top);
+	});
+	
+	$("div.container").hide();
+	
+	if($.browser.msie) {   // IE doesn't handle URI strings
+		// get VML code
+		log(canvas.innerHTML);
+	} else {
+		var strDataURI = canvas.toDataURL();
+		//log("imgurl: " + strDataURI);
+		window.open(strDataURI,'','');
+		//Canvas2Image.saveAsPNG(flattened_canvas);
+	}
+}
+
+
+</script>
+</head>
+
+<body>
+
+<div class="container"></div>
+<input type="button" value="add image" onclick="init_image()" />
+<input type="button" value="get pos" onclick="getPos()" />
+<input type="button" value="flatten" onclick="flatten()" />
+<br />
+<input type="text" id="addText" name="addText" size="32" /><input type="button" value="add text" onclick="writeText();" />
+
+
+</body>
+</html>
