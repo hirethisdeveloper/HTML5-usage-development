@@ -1,0 +1,4 @@
+video-ads/
+	This uses the HTML5 video player to create a customized ad solution which fires off timeupdate events every 250ms that can be hooked into by jQuery and used to create a timeline or multiple timelines of actions that can be executed on or between certain time periods.
+
+
